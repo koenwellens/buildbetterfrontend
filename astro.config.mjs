@@ -6,5 +6,6 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://koenwellens.github.io/buildbetterfrontend/',
+	site: 'https://koenwellens.github.io/',
+	base: 'buildbetterfrontend'
 })
