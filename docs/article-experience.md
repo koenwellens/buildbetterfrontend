@@ -14,7 +14,10 @@ Read [Product](product.md) for scope, [Design system](design-system.md) for pres
 
 ## Core learning model
 
-**Understand it. Build it. See it.**
+**See it. Build it. Understand it.** — confirmed tagline in BBF-002.
+
+The publication tagline does not change the Article / Code / Preview
+perspective labels or their order below.
 
 | Perspective | Purpose | Availability |
 |---|---|---|

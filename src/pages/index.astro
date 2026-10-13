@@ -4,16 +4,88 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Build Better Frontend"
-  description="An independent frontend engineering publication. Understand it. Build it. See it."
+  description="An independent frontend engineering publication. See it. Build it. Understand it."
 >
-  <main>
-    <h1>Build Better Frontend</h1>
-    <p>Understand it. Build it. See it.</p>
+  <main class="container validation">
+    <div class="reading">
+      <header class="introduction" id="top">
+        <p class="technical-label">Practical frontend knowledge</p>
+        <h1 class="display-heading">Build Better <span class="brand-gradient">Frontend.</span></h1>
+        <p class="tagline">See it. Build it. Understand it.</p>
+        <p class="description">An independent publication for frontend developers who care about their craft.</p>
+        <div>
+          <a class="action action--primary" href="#foundation">Explore the design foundation <span aria-hidden="true">&darr;</span></a>
+        </div>
+      </header>
+
+      <section class="surface foundation" id="foundation" aria-labelledby="foundation-title" tabindex="-1">
+        <p class="technical-label">Design foundation</p>
+        <h2 id="foundation-title">Built for clarity.</h2>
+        <p>Readable type, comfortable space, and thoughtful details. A foundation for practical knowledge, real code, and working examples.</p>
+        <p class="font-note">Plus Jakarta Sans for reading. <span class="technical-type">Fira Code for technical detail.</span></p>
+        <a class="back-link" href="#top">Back to top <span aria-hidden="true">&uarr;</span></a>
+      </section>
+    </div>
   </main>
 </BaseLayout>
 
 <style>
-  main {
-    padding: 1.5rem;
+  .validation {
+    padding-block: var(--section-space);
+  }
+
+  .introduction,
+  .foundation {
+    display: grid;
+    gap: var(--space-24);
+  }
+
+  h1 {
+    max-inline-size: 15ch;
+  }
+
+  .tagline {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-secondary);
+  }
+
+  .description,
+  .foundation > p:not(.technical-label) {
+    color: var(--color-text-secondary);
+  }
+
+  /* Reserve this short introduction's three mobile lines during font swap. */
+  .description {
+    min-block-size: calc(3em * var(--line-height-body));
+  }
+
+  .foundation {
+    margin-block-start: var(--space-48);
+    scroll-margin-block: var(--space-24);
+  }
+
+  .font-note,
+  .technical-type {
+    font-size: var(--text-sm);
+  }
+
+  .technical-type {
+    font-family: var(--font-mono, monospace);
+  }
+
+  .back-link {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--control-min-size);
+    gap: var(--space-8);
+    font-size: var(--text-base);
+  }
+
+  @media (min-width: 40rem) {
+    .description {
+      min-block-size: 0;
+    }
   }
 </style>

@@ -24,20 +24,24 @@ Confirmed decisions take precedence over proposals. Product owns scope, Design o
 | Editorial cadence | Three articles per month: one tip, one deep dive, one Building with Codex article |
 | Visual direction | Modern technical design with dark navy surfaces, based on the latest mock-up |
 | Typography | Plus Jakarta Sans and Fira Code |
+| Tagline | See it. Build it. Understand it. — selected in BBF-002 |
 | Discovery | Homepage Frontend Explorer searches and discovers existing articles without an AI backend |
 | Random discovery | Offer a randomly selected published article; final label remains open |
 | Learning experience | Article / Code / Preview perspectives; multiple examples per article |
 | Quality | Accessibility, SEO, and performance are core concerns |
 | Source access | GitHub repositories support practical learning and reusable examples |
 | Future interaction | Playground is optional and later |
-| Current phase | BBF-001 project foundation; homepage and publication features deferred |
+| Current phase | BBF-002 design system foundation; full homepage and publication features deferred |
 
 ## Product identity
 
 **Name:** Build Better Frontend  
 **Abbreviation:** BBF  
 **Working domain from the earlier blueprint:** buildbetterfrontend.com  
-**Tagline carried forward and shown in the mock-up:** Understand it. Build it. See it.
+**Confirmed tagline (BBF-002):** See it. Build it. Understand it.
+
+The reference image retains the earlier tagline. The BBF-002 request
+supersedes that copy; Article / Code / Preview labels and order are unchanged.
 
 The working domain is not a claim that hosting or domain configuration has been completed. The English website and English specification language are carried forward from the earlier blueprint.
 
