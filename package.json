@@ -1,0 +1,25 @@
+{
+  "name": "buildbetterfrontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=9.6.5"
+  },
+  "packageManager": "npm@11.19.0",
+  "scripts": {
+    "dev": "astro dev",
+    "check": "astro check",
+    "build": "npm run check && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "8.0.3",
+    "astro": "7.3.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "typescript": "6.0.3"
+  }
+}
