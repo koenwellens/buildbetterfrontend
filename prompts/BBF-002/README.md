@@ -42,7 +42,7 @@ are CSS rather than wrapper components. The homepage demonstrates the gradient,
 tagline, typography, surface, and functional fragment links. It contains no
 client scripts or full homepage/product features.
 
-**Pull request:** /
+**Pull request:** 1
 
 ## Verification
 
