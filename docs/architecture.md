@@ -35,6 +35,23 @@ search, example runtime, testing framework, CI, or hosting is implemented.
 
 These choices record this implementation, not prior approval of other proposals.
 
+## BBF-002 visual foundation decisions
+
+**Adopted implementation choices:** centralized CSS custom properties,
+document defaults, and a small shared stylesheet for visual/layout patterns.
+The root page is now a minimal design validation surface. See
+[Design system](design-system.md) for the selected values and current tagline.
+BBF-001's scope statements above describe that earlier task's outcome.
+
+Fonts are vendored local Latin WOFF2 assets with their original OFL licenses.
+Astro's native local Fonts API handles fingerprinting, preloading the reading
+font, and metric-adjusted fallbacks. This preserves a build from local files
+and avoids visitor requests to external font services. No package dependencies,
+browser scripts, or UI framework were added. Astro's font processing uses a
+temporary local HTTP server during the build; restricted execution environments
+must permit that local listener. This task does not execute or verify remote CI,
+hosting, domain setup, or production publishing.
+
 ## Proposed architecture
 
 Build a static publication with server-generated article HTML and small, focused client interactions. Keep content, example source, and configuration in version control. A database, application server, authentication service, AI service, and custom CMS are unnecessary for the proposed v1 scope.

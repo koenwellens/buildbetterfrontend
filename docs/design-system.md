@@ -6,6 +6,10 @@ Version: 0.1 · Documentation baseline · 12 October 2026
 
 **Confirmed:** modern technical dark navy design, Plus Jakarta Sans, Fira Code, and the visual direction of the supplied homepage mock-up.
 
+**Confirmed in BBF-002:** the current tagline is **See it. Build it. Understand it.**
+It supersedes the earlier copy in the reference image, without changing
+Article / Code / Preview labels or their order.
+
 **Proposal:** all exact tokens, sizes, breakpoints, timing values, component states, and implementation details below. They convert the established direction into a consistent, reviewable system; they are not exact measurements extracted from the image.
 
 **Open:** final numerical tuning, logo asset, illustrations, and remaining interface copy. **Later:** additional themes and Playground.
@@ -17,6 +21,43 @@ The status definitions and release scope are in [Product](product.md). Content b
 ![BBF homepage visual reference](reference_image.png)
 
 The original user-supplied image is preserved unchanged at `docs/reference_image.png`. It shows the desktop homepage, not a complete responsive specification or a list of implemented features.
+
+### BBF-002 implementation choices
+
+The documented color, gradient, spacing, type-size, radius, width, and timing
+proposals are adopted as the initial implementation defaults. Numerical tuning
+remains reviewable; implementation does not imply repository owner acceptance.
+
+- `src/styles/tokens.css` owns values and the 40rem / 60rem gutter breakpoints.
+  `global.css` owns document defaults; `primitives.css` owns the small shared
+  container, reading column, action, technical-label, badge, and surface patterns.
+- The outer site container is capped at 1440px including its gutters. Content,
+  reading, and example containers add gutters to their specified inner widths.
+  Reading columns are capped at 760px. The validation page
+  alone constrains the display heading to 15ch for a compact two-line title.
+  Its short introduction reserves three lines below 40rem to reduce font-swap
+  movement without capping longer text.
+- Plus Jakarta Sans and Fira Code are local Latin variable WOFF2 assets from
+  Fontsource 5.3.0. Astro's native local Fonts API generates fingerprinted URLs
+  and metric-adjusted fallbacks with `font-display: swap`. Only the prose font
+  is preloaded. Original licenses ship in `public/fonts/`; font provenance is
+  documented in `src/assets/fonts/README.md`. No font package is installed.
+- Typography uses 1.7 body, 1.15 heading, and 1.6 code line heights. The display
+  scale remains fluid; code preserves standard/contextual ligatures. Normal
+  style and Latin coverage serve this task; more scripts and true italics are
+  deferred until required by authored content.
+- Action targets are at least 44px high, with a 2px cyan focus outline offset
+  by 4px. Hover states change colors and borders; reduced-motion sets all shared
+  timing tokens to zero. Gradient text has a solid fallback and a forced-colors
+  override. Plain links remain underlined.
+- Essential controls use `--color-control-border`; `--color-border` is for
+  decorative surfaces. Use primary or secondary text on hover surfaces rather
+  than assuming muted text passes contrast on every background.
+
+The root route is a minimal visual validation page, not the complete homepage.
+It uses the current tagline and ordinary fragment links. Discovery, article
+cards, category sections, featured experiences, and perspective panels are
+deferred. WCAG 2.2 AA remains a target, not a claim of full conformance.
 
 ## Design direction
 
@@ -146,7 +187,7 @@ Show GitHub and social icons only for real destinations. Omit Subscribe until op
 
 Left column: technical eyebrow, large headline, tagline, short mission statement, two CTAs, three feature highlights. Right column: Explorer with a decorative technical composition behind it.
 
-Use the provided headline and tagline as carried-forward copy. Exact supporting copy remains editable. The hero contains the page's single primary heading. Decorative HTML/CSS/JS layers and dots are hidden from assistive technology and never intercept pointer events.
+Use the provided headline and current confirmed tagline, “See it. Build it. Understand it.” Exact supporting copy remains editable. The hero contains the page's single primary heading. Decorative HTML/CSS/JS layers and dots are hidden from assistive technology and never intercept pointer events.
 
 Proposed primary editorial CTA: light background with dark text, matching the mock-up. Secondary CTA: outlined navy surface. Search submission can use the solid blue/violet accent family with a verified foreground color.
 

@@ -4,7 +4,7 @@ Repository instructions · v0.1 · 13 October 2026
 
 Place this file at the root of the BBF website repository, alongside `docs/`. All paths below are relative to that repository root.
 
-BBF is an independent, English-language frontend engineering publication. Its learning model is **Understand it. Build it. See it.** Build a maintainable publication that makes practical articles, real source code, and working examples easy to read and publish.
+BBF is an independent, English-language frontend engineering publication. Its learning model is **See it. Build it. Understand it.** Build a maintainable publication that makes practical articles, real source code, and working examples easy to read and publish.
 
 ## Read the relevant specifications
 

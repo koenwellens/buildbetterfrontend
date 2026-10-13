@@ -1,8 +1,5 @@
-/* Minimal foundation. Brand tokens and fonts belong to the design implementation. */
-:root {
-  font-family: system-ui, sans-serif;
-  line-height: 1.5;
-}
+@import './tokens.css';
+@import './primitives.css';
 
 *,
 *::before,
@@ -10,6 +7,145 @@
   box-sizing: border-box;
 }
 
-body {
+:where(body, h1, h2, h3, h4, h5, h6, p, figure, blockquote) {
   margin: 0;
+}
+
+html {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 100%;
+  line-height: var(--line-height-body);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-inline-size: 0;
+  overflow-wrap: break-word;
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  color: var(--color-text);
+  font-weight: var(--weight-bold);
+  line-height: var(--line-height-heading);
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+h5 { font-size: var(--text-base); }
+h6 { font-size: var(--text-sm); }
+
+:where(p, li) {
+  text-wrap: pretty;
+}
+
+strong {
+  font-weight: var(--weight-bold);
+}
+
+small {
+  font-size: var(--text-sm);
+}
+
+a {
+  color: var(--color-cyan);
+  text-underline-offset: var(--space-4);
+  text-decoration-thickness: var(--border-width);
+  transition: color var(--duration-action) var(--ease-interaction);
+}
+
+a:hover {
+  color: var(--color-text);
+  text-decoration-thickness: var(--focus-width);
+}
+
+:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+
+:where(button, input, select, textarea) {
+  max-inline-size: 100%;
+  min-block-size: var(--control-min-size);
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  padding: var(--space-8) var(--space-12);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-base);
+}
+
+button {
+  cursor: pointer;
+}
+
+:where(button:hover:enabled) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-text-secondary);
+}
+
+:where(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+  color: var(--color-text-muted);
+  background: var(--color-surface-raised);
+}
+
+textarea {
+  resize: vertical;
+}
+
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+:where(input[type='checkbox'], input[type='radio']) {
+  min-block-size: 0;
+  inline-size: var(--space-24);
+  block-size: var(--space-24);
+  padding: 0;
+  accent-color: var(--color-cyan);
+}
+
+:where(img, picture, video, canvas, svg) {
+  display: block;
+  max-inline-size: 100%;
+}
+
+:where(img, video) {
+  block-size: auto;
+}
+
+:where(code, pre, kbd, samp) {
+  font-family: var(--font-mono, monospace);
+  line-height: var(--line-height-code);
+  font-variant-ligatures: normal;
+}
+
+pre {
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
+::selection {
+  color: var(--color-on-accent);
+  background: var(--color-cyan);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
 }

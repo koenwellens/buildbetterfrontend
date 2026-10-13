@@ -36,7 +36,7 @@ collections are intentionally unregistered until their schemas and reference
 validation are implemented. No UI framework, testing framework, CI, hosting,
 article content, or example runtime was added. No commit or PR was created.
 
-**Pull request:** Not yet created.
+**Pull request:** /
 
 ## Verification
 
