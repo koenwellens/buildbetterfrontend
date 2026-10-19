@@ -1,10 +1,12 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import { articleMarkdown } from './src/lib/content/article-markdown.ts';
 
 export default defineConfig({
   site: 'https://buildbetterfrontend.com',
   output: 'static',
   integrations: [mdx()],
+  markdown: { processor: articleMarkdown, shikiConfig: { theme: 'github-dark-default' } },
   fonts: [
     {
       provider: fontProviders.local(),

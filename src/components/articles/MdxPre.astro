@@ -1,0 +1,6 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+type Props = HTMLAttributes<'pre'>;
+const { tabindex: _tabindex, ...attributes } = Astro.props;
+---
+<pre {...attributes} tabindex="0" role="region" aria-label="Article code block"><slot /></pre>

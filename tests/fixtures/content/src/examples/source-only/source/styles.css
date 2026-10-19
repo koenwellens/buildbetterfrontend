@@ -1,0 +1,5 @@
+/* Development fixture: fluid body text, without a preview. */
+.body-copy {
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+  line-height: 1.7;
+}

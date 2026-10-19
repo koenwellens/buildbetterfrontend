@@ -1,0 +1,20 @@
+---
+import { Code } from 'astro:components';
+import type { ResolvedSource } from '../../lib/content/examples.ts';
+interface Props { source: ResolvedSource; exampleId: string }
+const { source, exampleId } = Astro.props;
+const labelId = `source-${exampleId}-${source.id}`;
+---
+
+<figure class="source-file" aria-labelledby={labelId}>
+  <figcaption id={labelId}><span>{source.label}</span><span class="language">{source.language}</span></figcaption>
+  <Code code={source.content} lang={source.language} theme="github-dark-default" tabindex="0" role="region" aria-label={`${source.label} source code`} />
+</figure>
+
+<style>
+  .source-file { min-inline-size: 0; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-panel); background: var(--color-surface); }
+  figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-8); padding: var(--space-12) var(--space-16); border-block-end: var(--border-width) solid var(--color-border); font-family: var(--font-mono, monospace); font-size: var(--text-sm); overflow-wrap: anywhere; }
+  .language { color: var(--color-text-secondary); }
+  .source-file :global(pre) { margin: 0; padding: var(--space-24); border-radius: 0 0 var(--radius-panel) var(--radius-panel); font-size: var(--text-sm); line-height: var(--line-height-code); }
+  .source-file :global(pre:focus-visible) { outline-offset: calc(-1 * var(--space-4)); }
+</style>

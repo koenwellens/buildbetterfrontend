@@ -1,0 +1,23 @@
+/* Deliberately limited to authored prose, not example components or site chrome. */
+.article-prose { font-size: var(--text-lg); color: var(--color-text-secondary); min-inline-size: 0; }
+.article-prose > * + * { margin-block-start: var(--space-24); }
+.article-prose :where(h2, h3, h4, h5, h6) { margin-block: var(--space-48) var(--space-16); scroll-margin-block-start: var(--space-24); }
+.article-prose :where(h2, h3) { overflow-wrap: anywhere; }
+.article-prose :where(ul, ol) { padding-inline-start: var(--space-24); }
+.article-prose li + li { margin-block-start: var(--space-8); }
+.article-prose li > :where(ul, ol, p) { margin-block-start: var(--space-8); }
+.article-prose strong { color: var(--color-text); }
+.article-prose blockquote { border-inline-start: var(--space-4) solid var(--color-secondary); padding: var(--space-8) var(--space-24); color: var(--color-text); }
+.article-prose blockquote > * + * { margin-block-start: var(--space-16); }
+.article-prose :not(pre) > code { border-radius: var(--space-4); background: var(--color-surface-raised); color: var(--color-text); padding: 0.1em 0.3em; font-size: 0.875em; overflow-wrap: anywhere; }
+.article-prose pre { padding: var(--space-24); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-panel); font-size: var(--text-sm); line-height: var(--line-height-code); }
+.article-prose pre code { white-space: pre; }
+.article-prose :where(img, video) { border-radius: var(--radius-panel); margin-inline: auto; }
+.article-prose figure { margin-inline: 0; }
+.article-prose figcaption { margin-block-start: var(--space-12); font-size: var(--text-sm); }
+.article-prose .article-table-scroll { max-inline-size: 100%; overflow-x: auto; }
+.article-prose table { inline-size: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.article-prose pre:focus-visible { outline-offset: calc(-1 * var(--space-8)); }
+.article-prose :where(th, td) { padding: var(--space-12) var(--space-16); border: var(--border-width) solid var(--color-border); text-align: start; }
+.article-prose th { background: var(--color-surface); color: var(--color-text); font-weight: var(--weight-semibold); }
+.article-prose hr { border: 0; border-block-start: var(--border-width) solid var(--color-border); margin-block: var(--space-48); }

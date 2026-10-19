@@ -1,0 +1,9 @@
+/* Development fixture only. */
+* { box-sizing: border-box; }
+html { color-scheme: dark; background: #0b1320; color: #f5f7fc; font-family: system-ui, sans-serif; }
+body { margin: 0; }
+main { padding: 32px; }
+.eyebrow { margin: 0 0 24px; color: #55cff5; font-family: monospace; font-size: 12px; }
+h1 { margin: 0; font-size: clamp(2rem, 5vw, 4rem); line-height: 1.15; letter-spacing: -0.035em; }
+.description { color: #b3c0d6; line-height: 1.7; }
+.note { margin-top: 24px; color: #8393ae; font-size: 12px; line-height: 1.6; }
