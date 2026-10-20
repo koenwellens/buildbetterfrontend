@@ -1,0 +1,26 @@
+---
+import { getCollection, getEntries, render, type CollectionEntry } from 'astro:content';
+import { root } from 'astro:config/server';
+import { fileURLToPath } from 'node:url';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { previews } from '../../examples/previews.ts';
+import { resolveExample } from '../../lib/content/examples.ts';
+import MdxPre from '../../components/articles/MdxPre.astro';
+import MdxTable from '../../components/articles/MdxTable.astro';
+
+export async function getStaticPaths() {
+  return (await getCollection('articles')).map(entry => ({ params: { slug: entry.id }, props: { entry } }));
+}
+interface Props { entry: CollectionEntry<'articles'> }
+const { entry } = Astro.props;
+const { Content, remarkPluginFrontmatter } = await render(entry);
+const readingMinutes: unknown = remarkPluginFrontmatter.readingMinutes;
+if (typeof readingMinutes !== 'number') throw new Error(`article "${entry.id}": missing derived reading time`);
+const authors = await getEntries(entry.data.authors);
+const entries = await getEntries(entry.data.examples);
+const examples = await Promise.all(entries.map(({ data }) => resolveExample(fileURLToPath(root), data, previews)));
+---
+
+<ArticleLayout article={entry.data} authors={authors} examples={examples} readingMinutes={readingMinutes}>
+  <Content components={{ pre: MdxPre, table: MdxTable }} />
+</ArticleLayout>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>BBF preview security browser regressions</title></head>
+<body>
+  <h1>BBF preview security browser regressions</h1>
+  <p>Disposable test project only. This page never enters publication inputs.</p>
+  <ol id="results"></ol><p id="summary" role="status">Running…</p>
+  <div id="fixtures"></div>
+  <script type="module">
+    const results = document.querySelector('#results');
+    const messages = [];
+    const frames = new Map();
+    addEventListener('message', event => {
+      if (event.data?.type === 'bbf-security') messages.push({ ...event.data, origin: event.origin, source: event.source });
+    });
+    function assert(condition, message) { if (!condition) throw new Error(message); }
+    async function load(path) {
+      const frame = document.createElement('iframe');
+      frame.title = 'Direct unsandboxed access: ' + path;
+      // No test iframe sandbox: the served document must enforce its own boundary.
+      const loaded = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Frame load timed out: ' + path)), 5000);
+        frame.onload = () => { clearTimeout(timer); resolve(); };
+        frame.onerror = error => { clearTimeout(timer); reject(error); };
+      });
+      frame.src = path;
+      document.querySelector('#fixtures').append(frame);
+      await loaded;
+      return frame;
+    }
+    const cases = [
+      ['Registered default preview blocks scripts on direct access', async () => {
+        frames.set('registered', await load('/previews/registered/source/index.html'));
+      }],
+      ['HTML-like comment cannot bypass document protection', async () => {
+        frames.set('comment', await load('/previews/comment/source/index.html'));
+      }],
+      ['Unregistered HTML and SVG documents are not served or executed', async () => {
+        for (const file of ['extra.html', 'image.svg']) {
+          const path = '/previews/registered/source/' + file;
+          assert((await fetch(path)).status === 404, file + ' must return 404');
+          const frame = await load(path);
+          assert(!frame.contentDocument.querySelector('[data-security-probe]'), file + ' executed');
+        }
+      }],
+      ['Classic scripts, relative CSS, and data images work without same-origin access', async () => {
+        frames.set('scripted', await load('/previews/scripted/source/index.html'));
+        // Allow cross-context messages already queued by the load event to arrive.
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const message = messages.find(message => message.id === 'scripted');
+        assert(message, 'Permitted classic script did not execute');
+        assert(message.inline === 'executed', 'Permitted inline script did not execute');
+        assert(message.parentBlocked && message.storageBlocked, 'Standalone preview escaped origin isolation');
+        const inner = frames.get('scripted').contentDocument.querySelector('iframe');
+        assert(message.origin === 'null' && message.source === inner.contentWindow, 'Message did not come from the opaque preview');
+        assert(message.color === 'rgb(10, 120, 30)', 'Declared relative stylesheet did not apply');
+        assert(message.imageLoaded, 'Allowed data image did not load');
+      }],
+      ['Default and comment fixtures never executed their script probes', async () => {
+        for (const id of ['registered', 'comment']) {
+          assert(!messages.some(message => message.id === id), id + ' executed');
+          const wrapper = frames.get(id).contentDocument;
+          assert(!wrapper.body.dataset.inlineProbe, id + ' escaped into wrapper');
+          const inner = wrapper.querySelector('iframe');
+          assert(inner && inner.getAttribute('sandbox') === '', id + ' lacks persistent isolation');
+          assert(inner.contentDocument === null, id + ' is unexpectedly same-origin');
+        }
+      }],
+      ['Unpublished previews and draft-only resources remain excluded', async () => {
+        for (const path of ['/previews/unpublished/source/index.html', '/previews/unpublished/source/styles.css', '/previews/security/source/index.html']) {
+          assert((await fetch(path)).status === 404, 'Unpublished resource emitted: ' + path);
+        }
+      }],
+    ];
+    let failures = 0;
+    for (const [name, run] of cases) {
+      const row = document.createElement('li');
+      try { await run(); row.textContent = 'PASS — ' + name; row.dataset.result = 'pass'; }
+      catch (error) { failures++; row.textContent = 'FAIL — ' + name + ': ' + error.message; row.dataset.result = 'fail'; }
+      results.append(row);
+    }
+    document.querySelector('#summary').textContent = `${cases.length - failures}/${cases.length} passed; ${failures} failed`;
+    document.body.dataset.result = failures ? 'fail' : 'pass';
+  </script>
+</body></html>

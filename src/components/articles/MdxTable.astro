@@ -1,0 +1,7 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+type Props = HTMLAttributes<'table'>;
+---
+<div class="article-table-scroll" tabindex="0" role="region" aria-label="Article table">
+  <table {...Astro.props}><slot /></table>
+</div>

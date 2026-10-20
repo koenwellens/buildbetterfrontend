@@ -1,0 +1,30 @@
+---
+import type { ResolvedExample } from '../../lib/content/examples.ts';
+interface Props { example: ResolvedExample }
+const { example } = Astro.props;
+const preview = example.preview;
+if (preview && preview.kind !== 'isolated-page') {
+  throw new Error(`example "${example.id}": trusted-component delivery is not implemented; use a reviewed isolated-page preview`);
+}
+const url = preview ? `${import.meta.env.BASE_URL}previews/${preview.path}` : undefined;
+---
+
+{preview && url && <section data-preview={example.id} class="preview" aria-labelledby={`preview-${example.id}`}>
+  <div class="preview-heading">
+    <h4 id={`preview-${example.id}`}>Working preview</h4>
+    <a href={url} target="_blank" rel="noopener noreferrer">Open separately <span aria-hidden="true">↗</span><span class="new-tab"> (new tab)</span></a>
+  </div>
+  <iframe src={url} title={example.accessibleLabel} sandbox={preview.sandbox.join(' ')} loading="lazy" referrerpolicy="no-referrer" width="1100" height="360"></iframe>
+  <button type="button" data-preview-retry hidden>Reload preview</button>
+  <p class="preview-note" data-preview-status>This example runs in an isolated frame. If it does not load, use the separate preview link.</p>
+</section>}
+
+<style>
+  .preview { border: var(--border-width) solid var(--color-border); border-radius: var(--radius-panel); background: var(--color-surface); min-inline-size: 0; }
+  .preview-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-12); padding: var(--space-16); }
+  h4 { font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+  a { font-size: var(--text-sm); padding-block: var(--space-8); }
+  .new-tab { font-size: var(--text-xs); }
+  iframe { display: block; inline-size: 100%; max-inline-size: 100%; block-size: 22.5rem; border: 0; background: var(--color-background); }
+  .preview-note { padding: var(--space-12) var(--space-16); color: var(--color-text-secondary); font-size: var(--text-xs); }
+</style>

@@ -1,0 +1,164 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>BBF article perspective browser regressions</title>
+<style>body{font:16px system-ui;max-width:80rem;margin:2rem auto;padding:1rem}iframe{width:100%;height:550px;border:1px solid}li[data-result=fail]{color:#a32632}</style></head><body>
+<h1>BBF article perspective browser regressions</h1><p>Disposable production fixture only; no test content enters the publication.</p>
+<ol id="results"></ol><p id="summary" role="status">Running…</p><div id="frames"></div>
+<script type="module">
+  const assert = (condition, message) => { if (!condition) throw new Error(message); };
+  const delay = duration => new Promise(resolve => setTimeout(resolve, duration));
+  async function until(predicate, message) {
+    for (let i=0;i<100;i++) { if (predicate()) return; await delay(50); }
+    throw new Error(message);
+  }
+  async function load(id='mixed-examples', hash='', scripts=true) {
+    const frame=document.createElement('iframe');frame.title='Fixture '+id;
+    if (!scripts) frame.setAttribute('sandbox','allow-same-origin');
+    frame.src='/articles/'+id+'/'+hash;
+    const loaded=new Promise(resolve => frame.onload=resolve);
+    document.querySelector('#frames').append(frame);await loaded;
+    if(scripts && id!=='prose-only' && id!=='enhancement-failure') await until(()=>frame.contentDocument.querySelector('[data-enhanced]'),'Enhancement did not initialize: '+id);
+    return frame;
+  }
+  const dom = frame => frame.contentDocument;
+  const tab = (frame, view) => dom(frame).querySelector('[data-perspective="'+view+'"]');
+  const active = frame => dom(frame).querySelector('[role=tab][aria-selected=true]')?.dataset.perspective;
+  const panel = (frame, view) => dom(frame).querySelector('[data-panel="'+view+'"]');
+  const click = (frame, view) => tab(frame,view).click();
+  function choose(frame, selector, value) {
+    const control=dom(frame).querySelector(selector);assert(control,'Missing selector '+selector);
+    control.value=value;control.dispatchEvent(new frame.contentWindow.Event('change',{bubbles:true}));
+  }
+  const codeExample='[data-example-select=code]', previewExample='[data-example-select=preview]';
+  let mixed, originalSource, originalPreview;
+  const cases=[
+    ['Article-only pages have no redundant navigation',async()=>{
+      const frame=await load('prose-only');assert(!dom(frame).querySelector('[data-perspective-nav]'),'Redundant nav');
+      assert(dom(frame).body.textContent.includes('Complete prose in initial HTML'),'Reading missing');
+    }],
+    ['Code-only and preview-only articles expose only real perspectives',async()=>{
+      for (const [id,expected] of [['code-only','article,code'],['preview-only','article,preview']]) {
+        const frame=await load(id);
+        assert([...dom(frame).querySelectorAll('[role=tab]')].map(tab=>tab.dataset.perspective).join()===expected,'Incorrect availability');
+        assert(!dom(frame).querySelector('[data-example-select]'),'Unnecessary example selector');
+      }
+    }],
+    ['Mixed resources initialize to Article with unique connected tab relationships',async()=>{
+      mixed=await load();const doc=dom(mixed);assert(active(mixed)==='article','Wrong default');
+      const ids=[...doc.querySelectorAll('[id]')].map(node=>node.id);assert(ids.length===new Set(ids).size,'Duplicate IDs');
+      for(const control of doc.querySelectorAll('[role=tab]')) {
+        const target=doc.getElementById(control.getAttribute('aria-controls'));
+        assert(target?.getAttribute('role')==='tabpanel' && target.getAttribute('aria-labelledby')===control.id,'Invalid tab relation');
+      }
+      originalSource=doc.querySelector('#source-fluid-heading-styles').closest('figure');
+      originalPreview=doc.querySelector('[data-preview=fluid-heading] iframe');
+      assert(!panel(mixed,'article').hidden && panel(mixed,'code').hidden && panel(mixed,'preview').hidden,'Incorrect initial visibility');
+    }],
+    ['Arrow/Home/End navigation is manual; Enter and Space activate without entering a frame',async()=>{
+      const doc=dom(mixed), article=tab(mixed,'article');article.focus();
+      const key=value=>doc.activeElement.dispatchEvent(new mixed.contentWindow.KeyboardEvent('keydown',{key:value,bubbles:true,cancelable:true}));
+      key('ArrowRight');assert(doc.activeElement===tab(mixed,'code') && active(mixed)==='article','Arrows activated a view');
+      key('End');assert(doc.activeElement===tab(mixed,'preview') && active(mixed)==='article','End behavior');
+      key('Home');assert(doc.activeElement===article,'Home behavior');key('ArrowLeft');assert(doc.activeElement===tab(mixed,'preview'),'Arrow wrap');
+      key(' ');assert(active(mixed)==='preview' && doc.activeElement===tab(mixed,'preview'),'Space focus/activation');
+      key('Home');key('Enter');assert(active(mixed)==='article' && doc.activeElement===article,'Enter behavior');
+    }],
+    ['Code/file selection preserves editorial order, original text and node identity',async()=>{
+      click(mixed,'code');const doc=dom(mixed);
+      assert([...doc.querySelector(codeExample).options].map(option=>option.value).join()==='fluid-heading,source-only,scripted','Code order');
+      assert(doc.querySelector(codeExample).value==='fluid-heading','First eligible code');
+      assert(doc.querySelector('[data-file-select=fluid-heading]').labels[0].textContent==='Source file','Source selector accessible name');
+      const text=originalSource.querySelector('code').textContent;
+      choose(mixed,'[data-file-select=fluid-heading]','styles');
+      assert(!originalSource.hidden && panel(mixed,'code').contains(originalSource),'Source duplicated or hidden');
+      assert(originalSource.querySelector('code').textContent===text && text.includes('clamp('),'Source changed');
+      assert(doc.querySelector('#source-fluid-heading-markup').closest('figure').hidden,'Inactive file exposed');
+      assert(mixed.contentWindow.location.hash==='#source-fluid-heading-styles','Stable file fragment missing');
+    }],
+    ['Code/Preview preserve an eligible example or visibly select the first eligible one',async()=>{
+      click(mixed,'preview');assert(dom(mixed).querySelector(previewExample).value==='fluid-heading','Shared example not preserved');
+      assert(panel(mixed,'preview').contains(originalPreview),'Preview was cloned');
+      choose(mixed,previewExample,'preview-only');click(mixed,'code');
+      assert(dom(mixed).querySelector(codeExample).value==='fluid-heading','Code fallback selection');
+      assert(!originalSource.hidden,'File selection lost');
+      choose(mixed,codeExample,'source-only');click(mixed,'preview');assert(dom(mixed).querySelector(previewExample).value==='preview-only','Preview fallback selection');
+      choose(mixed,previewExample,'scripted');click(mixed,'code');assert(dom(mixed).querySelector(codeExample).value==='scripted','Second shared example lost');
+    }],
+    ['Hidden previews stop; returning reuses exactly one frame with unchanged permissions',async()=>{
+      click(mixed,'preview');const doc=dom(mixed);const frame=panel(mixed,'preview').querySelector('[data-preview=scripted] iframe');
+      frame.scrollIntoView();await until(()=>frame.hasAttribute('src'),'Visible preview did not start');
+      assert(frame.getAttribute('sandbox')==='allow-scripts' && frame.getAttribute('referrerpolicy')==='no-referrer','Permissions changed');
+      click(mixed,'code');assert(!frame.hasAttribute('src'),'Hidden preview still active');
+      assert([...doc.querySelectorAll('[data-preview] iframe')].every(frame=>!frame.hasAttribute('src')),'Another hidden frame is active');
+      click(mixed,'preview');frame.scrollIntoView();await until(()=>frame.hasAttribute('src'),'Preview failed to restart');
+      assert(doc.querySelectorAll('[data-preview=scripted] iframe').length===1,'Duplicate preview');
+    }],
+    ['Direct resource and heading fragments reveal and focus the correct existing content',async()=>{
+      const frame=await load('mixed-examples','#source-fluid-heading-styles');const doc=dom(frame);
+      assert(active(frame)==='code' && !doc.querySelector('#source-fluid-heading-styles').closest('figure').hidden,'Direct source fragment');
+      frame.contentWindow.location.hash='#preview-fluid-heading';await until(()=>active(frame)==='preview','Preview fragment');
+      assert(doc.activeElement.id==='preview-fluid-heading','Fragment did not focus heading');
+      frame.contentWindow.location.hash='#stable-reading-heading';await until(()=>active(frame)==='article','Heading fragment');
+      assert(doc.activeElement.id==='stable-reading-heading','Heading focus');
+      frame.contentWindow.location.hash='#example-fluid-heading';await until(()=>doc.activeElement.id==='example-fluid-heading','Example fragment');
+      assert(active(frame)==='article','Example should remain in Article');
+    }],
+    ['Back/Forward restore perspective, example and file selections',async()=>{
+      const frame=await load('mixed-examples','#source-fluid-heading-styles');click(frame,'preview');click(frame,'article');
+      frame.contentWindow.history.back();await until(()=>active(frame)==='preview','Back to preview');
+      assert(dom(frame).querySelector(previewExample).value==='fluid-heading','Back example');
+      frame.contentWindow.history.back();await until(()=>active(frame)==='code','Back to source');
+      assert(!dom(frame).querySelector('#source-fluid-heading-styles').closest('figure').hidden,'Back file');
+      frame.contentWindow.history.forward();await until(()=>active(frame)==='preview','Forward to preview');
+    }],
+    ['Unavailable/malformed fragments retain Article with an explanation',async()=>{
+      const prose=await load('prose-only','#preview-removed');
+      assert(!dom(prose).querySelector('[data-resource-message]').hidden && !dom(prose).querySelector('[data-perspective-nav]'),'Prose-only unavailable target fallback');
+      for(const hash of ['#preview-missing','#source-fluid-heading-removed','#%E0%A4%A']) {
+        const frame=await load('mixed-examples',hash);assert(active(frame)==='article','Invalid target hid Article');
+        assert(!dom(frame).querySelector('[data-resource-message]').hidden,'Missing explanation');
+      }
+    }],
+    ['No-JavaScript fallback exposes complete prose, all files, previews and ordinary anchors',async()=>{
+      const frame=await load('mixed-examples','',false);const doc=dom(frame);
+      assert(!doc.querySelector('[role=tab]') && !doc.querySelector('[data-enhanced]'),'Premature roles');
+      assert(doc.querySelector('#stable-reading-heading').getBoundingClientRect().height>0,'Reading unavailable');
+      for(const source of doc.querySelectorAll('[data-source-file]')) assert(source.getBoundingClientRect().height>0,'Source hidden without JS');
+      for(const preview of doc.querySelectorAll('[data-preview]')) assert(preview.querySelector('a[href^="/previews/"]'),'Fallback missing');
+      assert(doc.querySelector('[data-perspective=code]').getAttribute('href')==='#code-fluid-heading','Plain link missing');
+      doc.querySelector('[data-perspective=code]').click();
+      await until(()=>frame.contentWindow.location.hash==='#code-fluid-heading','Static resource link did not navigate');
+      assert(doc.querySelector('#code-fluid-heading').getBoundingClientRect().height>0,'Static target unavailable');
+    }],
+    ['Failed initialization leaves static resources and plain perspective links intact',async()=>{
+      const frame=await load('enhancement-failure');const doc=dom(frame);
+      assert(!doc.querySelector('[role=tab]') && !doc.querySelector('[data-enhanced]'),'Failed initialization left roles');
+      assert(doc.querySelector('[data-perspective=code]').getAttribute('href')==='#code-fluid-heading','Failure broke href');
+      assert([...doc.querySelectorAll('[data-source-file]')].every(node=>!node.hidden),'Failure hid source');
+      assert([...doc.querySelectorAll('[data-preview] iframe')].every(frame=>frame.hasAttribute('src')),'Failure broke previews');
+    }],
+    ['A later enhancement error restores the baseline rather than stranding hidden content',async()=>{
+      const frame=await load();const doc=dom(frame);doc.querySelector('[data-panel=code] [data-resource-host=fluid-heading]').remove();click(frame,'code');
+      assert(!doc.querySelector('[role=tab]') && !doc.querySelector('[data-enhanced]'),'Rollback did not remove semantics');
+      assert(!panel(frame,'article').hidden && [...doc.querySelectorAll('[data-source-file]')].every(node=>!node.hidden),'Rollback lost reading/source');
+      assert(doc.querySelector('[data-perspective=preview]').getAttribute('href')==='#preview-preview-only','Rollback lost fallback URL');
+    }],
+    ['Real preview HTTP failure leaves fallback, reload, source and Article operable',async()=>{
+      const frame=await load('broken-preview');click(frame,'preview');const doc=dom(frame);
+      const demo=doc.querySelector('[data-preview=broken] iframe');demo.scrollIntoView();await until(()=>demo.hasAttribute('src'),'Broken frame never requested');
+      assert((await fetch(demo.getAttribute('src'))).status===404,'Failure fixture did not fail');
+      await until(()=>!demo.hasAttribute('aria-busy'),'Failure left busy state');
+      assert(doc.querySelector('[data-preview-status]').textContent.includes('separate preview link'),'Missing recovery explanation');
+      const retry=doc.querySelector('[data-preview-retry]');assert(!retry.hidden,'Reload absent');retry.click();
+      click(frame,'code');assert(doc.querySelector('[data-code=source-only]').getBoundingClientRect().height>0,'Source broken by preview failure');
+      click(frame,'article');assert(doc.body.textContent.includes('Reading survives') && active(frame)==='article','Reading broken by preview failure');
+    }],
+  ];
+  let failures=0;
+  for(const [name,run] of cases) {
+    const row=document.createElement('li');
+    try {await run();row.textContent='PASS — '+name;row.dataset.result='pass';}
+    catch(error){failures++;row.textContent='FAIL — '+name+': '+error.message;row.dataset.result='fail';}
+    document.querySelector('#results').append(row);
+  }
+  document.querySelector('#summary').textContent=`${cases.length-failures}/${cases.length} passed; ${failures} failed`;
+  document.body.dataset.result=failures?'fail':'pass';
+</script></body></html>

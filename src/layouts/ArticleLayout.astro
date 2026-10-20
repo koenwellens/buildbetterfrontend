@@ -1,0 +1,40 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { ResolvedExample } from '../lib/content/examples.ts';
+import BaseLayout from './BaseLayout.astro';
+import ArticleHeader from '../components/articles/ArticleHeader.astro';
+import ArticlePerspectives from '../components/articles/ArticlePerspectives.astro';
+import '../styles/article.css';
+interface Props {
+  article: CollectionEntry<'articles'>['data'];
+  authors: CollectionEntry<'authors'>[];
+  examples: ResolvedExample[];
+  readingMinutes: number;
+}
+const { article, authors, examples, readingMinutes } = Astro.props;
+---
+
+<BaseLayout title={`${article.title} | Build Better Frontend`} description={article.description} type="article">
+  <a class="skip-link" href="#article">Skip to article</a>
+  <header class="site-header container container--site">
+    <a class="wordmark" href={import.meta.env.BASE_URL} aria-label="Build Better Frontend home"><span aria-hidden="true">//</span> BBF</a>
+    <span class="technical-label">See it. Build it. Understand it.</span>
+  </header>
+  <main id="article" tabindex="-1">
+    <article aria-labelledby="article-title">
+      <ArticleHeader article={article} authors={authors} readingMinutes={readingMinutes} />
+      <ArticlePerspectives examples={examples}><slot /></ArticlePerspectives>
+    </article>
+  </main>
+  <footer class="article-footer container container--reading"><a href={import.meta.env.BASE_URL}>← Back to Build Better Frontend</a></footer>
+</BaseLayout>
+
+<style>
+  .site-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-16); padding-block: var(--space-24); border-block-end: var(--border-width) solid var(--color-border); }
+  .wordmark { color: var(--color-text); font-size: var(--text-xl); font-weight: var(--weight-bold); text-decoration: none; padding-block: var(--space-8); }
+  .wordmark span { color: var(--color-cyan); font-family: var(--font-mono, monospace); }
+  .site-header > .technical-label { font-size: var(--text-xs); letter-spacing: 0; text-transform: none; }
+  .skip-link { position: absolute; inset-inline-start: var(--page-gutter); inset-block-start: var(--space-8); transform: translateY(-200%); padding: var(--space-12) var(--space-16); background: var(--color-surface-raised); z-index: 1; }
+  .skip-link:focus { transform: none; }
+  .article-footer { border-block-start: var(--border-width) solid var(--color-border); padding-block: var(--space-32) var(--space-48); font-size: var(--text-sm); }
+</style>

@@ -1,0 +1,57 @@
+---
+title: Fluid typography with CSS clamp()
+description: Give type room to grow, with a readable minimum, a fluid middle, and a deliberate upper limit.
+publishedAt: "2026-10-12"
+updatedAt: "2026-10-13"
+category: tips
+tags: [css, typography]
+authors: [fixture-author]
+examples: [source-only, fluid-heading]
+---
+
+> **Development fixture only.** This page exercises the article experience. It is not published editorial content, and its test author record does not represent a BBF contributor.
+
+A heading should feel at home on a narrow screen and have room to breathe on a large one. CSS `clamp()` lets you describe that range in one declaration, without a stack of media queries.
+
+## Three values, one fluid scale
+
+The browser chooses a preferred size, then keeps it between a minimum and a maximum. Start with a readable lower bound. Add a viewport-relative value for growth, and finish with an upper bound that suits the composition.
+
+```css
+.heading {
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.15;
+}
+```
+
+| Value | Role | What to check |
+| --- | --- | --- |
+| `2rem` | Minimum | The smallest screen still has a readable heading. |
+| `5vw` | Preferred | The type grows with the available viewport width. |
+| `4rem` | Maximum | The heading stops before it overwhelms the page. |
+
+## Build a range that works
+
+1. Choose a minimum that works with long words and narrow layouts.
+2. Adjust the fluid value while resizing the preview.
+3. Set a maximum that leaves space for the surrounding content.
+
+Keep an eye on more than the heading:
+
+- Let text wrap naturally; avoid fixed heights around prose.
+- Check text zoom and browser font-size preferences.
+- Treat these numbers as an example, rather than a universal type scale.
+
+### Test the edges
+
+Pure viewport-based growth can interact poorly with text enlargement. Test your actual design at 200% zoom and consider a preferred value that combines relative font units and viewport units. The examples below deliberately keep the arithmetic simple so the effect is easy to inspect.
+
+> A good type scale is a reading decision before it is a mathematical one.
+
+The first example is code only. The second uses the same HTML and stylesheet for the displayed source and working preview. Resize the browser to see the heading grow; no JavaScript is needed.
+
+## Keep the implementation small
+
+Use the platform for the job it already does well. The source files below are the authoritative examples; the article does not maintain a separate implementation.
+
+Read the [CSS clamp() reference](https://developer.mozilla.org/en-US/docs/Web/CSS/clamp) for the full function syntax and browser behavior.

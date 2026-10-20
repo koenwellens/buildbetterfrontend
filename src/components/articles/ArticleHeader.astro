@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { categories } from '../../lib/content/categories.ts';
+import { formatArticleDate } from '../../lib/content/format.ts';
+
+interface Props {
+  article: CollectionEntry<'articles'>['data'];
+  authors: CollectionEntry<'authors'>[];
+  readingMinutes: number;
+}
+const { article, authors, readingMinutes } = Astro.props;
+---
+
+<header class="article-header container container--reading">
+  <p><span class="badge" data-category={article.category}>{categories[article.category].label}</span></p>
+  <h1 id="article-title">{article.title}</h1>
+  <p class="description">{article.description}</p>
+  <div class="metadata">
+    <p class="authors">By {authors.map(({ data }) => data.name).join(', ')}</p>
+    <p><time datetime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
+      <span aria-hidden="true"> · </span><span>{readingMinutes} min read <span class="estimate">(estimate)</span></span>
+    </p>
+    {article.updatedAt && <p>Updated <time datetime={article.updatedAt}>{formatArticleDate(article.updatedAt)}</time></p>}
+  </div>
+  {article.repositoryUrl && <p class="repository"><a href={article.repositoryUrl}>Article source repository <span aria-hidden="true">↗</span></a></p>}
+</header>
+
+<style>
+  .article-header { padding-block: var(--space-64) var(--space-48); }
+  h1 { margin-block: var(--space-24); font-size: clamp(var(--text-2xl), 4vw, var(--text-3xl)); line-height: 1.2; letter-spacing: -0.025em; overflow-wrap: anywhere; }
+  .description { color: var(--color-text-secondary); font-size: var(--text-xl); line-height: var(--line-height-body); }
+  .metadata { margin-block-start: var(--space-32); color: var(--color-text-secondary); font-size: var(--text-sm); }
+  .authors { color: var(--color-text); font-weight: var(--weight-semibold); margin-block-end: var(--space-4); }
+  .estimate { color: var(--color-text-muted); }
+  .repository { margin-block-start: var(--space-24); font-size: var(--text-sm); }
+</style>
