@@ -5,8 +5,10 @@ An independent English-language frontend engineering publication.
 
 BBF-001 established the Astro + TypeScript + MDX foundation; BBF-002 added
 the visual foundation. BBF-003 step 1 adds the content model and validation.
-The root page remains a small design validation surface; article rendering,
-discovery, and the full homepage are not implemented yet.
+The root page remains a small design validation surface. BBF-003 adds static
+article rendering, protected isolated previews, and progressively enhanced
+Article / Code / Preview navigation. Discovery, the full homepage, and the
+editorial visual migration remain deferred.
 
 ## Local development
 
@@ -146,8 +148,24 @@ forms, plugins, and base URL overrides remain denied by CSP. The article's outer
 iframe remains lazy; the wrapper adds one inner frame, not another demo instance.
 Review authored behavior before publication. The
 `trusted-component` schema kind is retained, but referencing one fails clearly
-until its execution boundary is implemented. Article-level perspectives remain
-deferred.
+until its execution boundary is implemented. Article perspectives are progressively
+enhanced from the same static body, source, and preview sections.
+
+### Article perspectives
+
+Article / Code / Preview links become manual keyboard tabs after initialization.
+Only perspectives with validated resources appear. Arrow keys and Home/End move
+focus; Enter/Space activates. Native selectors choose eligible examples and source
+files, preserving editorial order and shared example selection across views.
+
+The existing heading, `#article`, `#example-*`, `#code-*`, `#preview-*`, and
+`#source-<example>-<file>` fragments remain useful, including Back/Forward and
+direct links. No JavaScript or a failed enhancement leaves the complete reading
+body, all sources, and ordinary demo links available. Hidden enhanced previews
+are unloaded and restart when selected; their sandbox/CSP policy is unchanged.
+A frame load cannot establish that the demo itself succeeded, so reload and real
+standalone links remain available. Copy controls and the editorial redesign are
+separate work. See the [browser regression workflow](tests/fixtures/README.md).
 
 ### Validate an active draft before publication
 

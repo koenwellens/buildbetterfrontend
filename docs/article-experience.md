@@ -153,6 +153,54 @@ Render targets for these fragments in the initial HTML. Enhanced navigation upda
 
 This convention is a proposal, not a locked URL API. If a different approach is selected, preserve stable links, the unenhanced fallback, and consistent browser history.
 
+### BBF-003/03 adopted perspective behavior
+
+**Implemented choice, owner review pending:** the existing static body and
+example sections are enhanced in place. `getPerspectives()` supplies available
+Article / Code / Preview controls; prose-only pages have no redundant strip.
+Controls begin as ordinary links. Successful initialization adds manual tab
+semantics, associated panels, roving focus, arrows/Home/End, and Enter/Space
+activation. Failed initialization or a later interaction error restores the
+static sections and links. No article body, highlighted source, or running
+preview is cloned.
+
+Native, explicitly labeled selectors distinguish example and file selection.
+Code and Preview list only eligible examples in editorial order. The selected
+example survives a perspective change when eligible; otherwise the first
+eligible example is visibly selected. File selection is remembered per example
+for the visit. The original source path, optional display label, language, text,
+and repository links remain available. Copy controls are still deferred.
+
+**Fragment decision:** preserve the existing actual anchors, rather than adopt
+a second scheme. `#article` selects Article; `#example-<id>` stays in Article;
+`#code-<id>`, `#preview-<id>`, and the existing file caption IDs
+`#source-<example-id>-<file-id>` reveal their resource. Heading IDs are unchanged.
+Resolution uses the actual DOM target and resource membership, not string
+splitting (IDs may contain hyphens). Explicit tab/example/file selections push
+an existing fragment when it changes. Native fragment navigation and
+Back/Forward reveal and focus the target without focusing an iframe. Tab
+activation keeps focus on the control. Invalid fragments show Article with a
+resource-unavailable explanation. In-memory file state is not persisted between
+page visits; an explicit file fragment restores that file on a fresh visit.
+The proposal table above is not a separate URL API or an anchor renaming.
+
+Resources move to the selected panel and return to their original article
+positions when reading resumes. Inactive source files and panels are hidden
+with no exposed focus targets. Hidden previews lose their `src`, stopping their
+runtime; reactivation restarts the same frame. Initial Article frames retain
+native lazy loading, while reactivated frames start near the viewport using a
+small observer. Loading, delayed/error guidance, and a reload control are local
+to each demo. A frame load event cannot prove HTTP/runtime success across the
+opaque sandbox; its feedback explicitly offers the real separate preview link
+rather than claiming that the demo works. Reading/source remain usable during
+failure. No frame permissions, CSP, wrapper, resource policy, or execution
+capability changes.
+
+The compact ruled/blue-underlined controls use current contrast-safe tokens
+within the existing dark layout. The light editorial migration, navigation
+rail, outline, chapter numbering/progress, and font replacement remain BBF-004
+work; this task does not approve or implement them.
+
 ### Keyboard and assistive technology
 
 For tabs, use associated tab/panel IDs, accurate selection state, and roving focus. Arrow keys move among tabs, Home/End move to the first/last tab, and Enter/Space activates when manual activation is used. Proposed default: manual activation for preview tabs because activation may load a demo. Keep focus in a predictable position rather than moving it automatically into the iframe. Follow the [WAI-ARIA tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
@@ -251,8 +299,10 @@ local/data images and local styles remain supported. Working runtime behavior
 still requires author review.
 See [Architecture](architecture.md) for the delivery boundary.
 
-Article-level perspective navigation, inline example insertion, copy actions,
-and cover/avatar presentation remain pending. No tab semantics are applied.
+Article-level perspective navigation is implemented under BBF-003/03 as
+recorded above. Inline example insertion, copy actions, and cover/avatar
+presentation remain pending. The static baseline has no tab semantics; only
+successful enhancement applies them.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|

@@ -75,3 +75,33 @@ Open `http://localhost:4324/security-tests.html`; expect `6/6 passed; 0 failed`.
 The harness is copied into the disposable `dist/` only after its production
 build. Never copy it or these test records into the real publication. Stop the
 local server and remove that disposable directory after review.
+
+## Article perspective browser regressions
+
+`perspectives/project.ts` extends the disposable production-rendering fixture
+with prose-only, code-only, preview-only, mixed, and multiple-example articles.
+It also includes long source/example names, initialization/interaction failure
+cases, and a real preview HTTP 404 (removed only from disposable output after
+its successful build). The production collection is never modified.
+
+```sh
+bbf_perspectives_root="$(node --experimental-strip-types tests/fixtures/perspectives/project.ts)"
+python3 -m http.server 4325 --bind 127.0.0.1 --directory "$bbf_perspectives_root/dist"
+```
+
+Open `http://localhost:4325/perspective-tests.html`; expect `14/14 passed; 0 failed`.
+The suite exercises the actual bundled enhancement in a real browser: resource
+availability, manual keyboard tabs, source identity/order, example/file selection,
+lifecycle, fragments, Back/Forward, invalid targets including prose-only pages,
+script-disabled fallback, initialization/interaction rollback, and failed previews.
+The script-disabled case uses a same-origin iframe without script permission;
+it verifies actual fallback HTML instead of merely searching for markup.
+`security-tests.html` runs the retained six direct/embedded preview regressions.
+
+`npm test` runs the Node build/artifact regression, including unique IDs, static
+fallback/availability, native routes, ordering, sandbox/CSP, and publication
+exclusion. It does not launch a browser. Browser suites run automatically when
+their disposable pages are opened. Inspect the representative
+`/articles/mixed-examples/` page at 390px, 768px, and 1440px; also check real
+keyboard interaction, native selectors, and Back/Forward outside the harness.
+Stop the server and remove the disposable directory after review.

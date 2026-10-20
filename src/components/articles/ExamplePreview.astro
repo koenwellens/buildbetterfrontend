@@ -9,13 +9,14 @@ if (preview && preview.kind !== 'isolated-page') {
 const url = preview ? `${import.meta.env.BASE_URL}previews/${preview.path}` : undefined;
 ---
 
-{preview && url && <section class="preview" aria-labelledby={`preview-${example.id}`}>
+{preview && url && <section data-preview={example.id} class="preview" aria-labelledby={`preview-${example.id}`}>
   <div class="preview-heading">
     <h4 id={`preview-${example.id}`}>Working preview</h4>
     <a href={url} target="_blank" rel="noopener noreferrer">Open separately <span aria-hidden="true">↗</span><span class="new-tab"> (new tab)</span></a>
   </div>
   <iframe src={url} title={example.accessibleLabel} sandbox={preview.sandbox.join(' ')} loading="lazy" referrerpolicy="no-referrer" width="1100" height="360"></iframe>
-  <p class="preview-note">This example runs in an isolated frame. If it does not load, use the separate preview link.</p>
+  <button type="button" data-preview-retry hidden>Reload preview</button>
+  <p class="preview-note" data-preview-status>This example runs in an isolated frame. If it does not load, use the separate preview link.</p>
 </section>}
 
 <style>

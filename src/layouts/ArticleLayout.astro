@@ -3,7 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import type { ResolvedExample } from '../lib/content/examples.ts';
 import BaseLayout from './BaseLayout.astro';
 import ArticleHeader from '../components/articles/ArticleHeader.astro';
-import ArticleExamples from '../components/articles/ArticleExamples.astro';
+import ArticlePerspectives from '../components/articles/ArticlePerspectives.astro';
 import '../styles/article.css';
 interface Props {
   article: CollectionEntry<'articles'>['data'];
@@ -23,8 +23,7 @@ const { article, authors, examples, readingMinutes } = Astro.props;
   <main id="article" tabindex="-1">
     <article aria-labelledby="article-title">
       <ArticleHeader article={article} authors={authors} readingMinutes={readingMinutes} />
-      <div class="article-prose container container--reading"><slot /></div>
-      <ArticleExamples examples={examples} />
+      <ArticlePerspectives examples={examples}><slot /></ArticlePerspectives>
     </article>
   </main>
   <footer class="article-footer container container--reading"><a href={import.meta.env.BASE_URL}>← Back to Build Better Frontend</a></footer>

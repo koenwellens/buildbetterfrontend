@@ -395,6 +395,14 @@ Baseline: article body, source sections, and demo links in static HTML. Only aft
 
 Keep existing fragments working and preserve Back/Forward. The `#article`, `#code-…`, `#preview-…` convention in Article experience remains a proposal; this design does not adopt it as an API or rename live IDs. Invalid resource targets return to a usable article with an explanation. Retain selected example across Code/Preview if eligible; otherwise visibly select the first eligible example in editorial order.
 
+**BBF-003/03 scoped adoption:** compact labels, a blue active underline, stronger
+selected weight, manual keyboard activation, and native example/file selectors
+are implemented within the existing layout. Current dark-layout tokens are
+retained for readable contrast; no light palette/font/shell migration is implied.
+The existing Plus Jakarta Sans/Fira Code delivery and syntax theme stay intact.
+See the [implementation record](../prompts/BBF-003/README.md) for measured checks;
+owner visual acceptance remains pending.
+
 ### ExampleSelector, FileSelector, CodeExample
 
 Use descriptive example names and native selects or compact lists when multiple resources exist. A single source file does not need a simulated IDE. Distinguish article perspectives, file selection, and example-specific step controls by labels, placement, and scope.

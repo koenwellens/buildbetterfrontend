@@ -8,7 +8,7 @@ const { examples } = Astro.props;
 
 {examples.length > 0 && <section class="examples container container--example" aria-labelledby="examples-title">
   <div class="section-heading"><p class="technical-label">Build it. See it.</p><h2 id="examples-title">Explore the examples</h2></div>
-  {examples.map((example, index) => <section class="example" id={`example-${example.id}`} aria-labelledby={`example-title-${example.id}`}>
+  {examples.map((example, index) => <section class="example" data-example={example.id} id={`example-${example.id}`} aria-labelledby={`example-title-${example.id}`}>
     <header class="example-heading">
       <p class="technical-label">Example {String(index + 1).padStart(2, '0')}</p>
       <h3 id={`example-title-${example.id}`}>{example.title}</h3>
@@ -16,7 +16,7 @@ const { examples } = Astro.props;
       {example.repositoryUrl && <p><a href={example.repositoryUrl}>Source repository for {example.title} <span aria-hidden="true">↗</span></a></p>}
     </header>
     <ExamplePreview example={example} />
-    {example.sourceFiles.length > 0 && <section class="sources" id={`code-${example.id}`} aria-label={`Source files for ${example.title}`}>
+    {example.sourceFiles.length > 0 && <section class="sources" data-code={example.id} id={`code-${example.id}`} aria-label={`Source files for ${example.title}`}>
       {example.sourceFiles.map(source => <SourceFile source={source} exampleId={example.id} />)}
     </section>}
   </section>)}

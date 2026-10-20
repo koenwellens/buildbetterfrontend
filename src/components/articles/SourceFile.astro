@@ -6,8 +6,8 @@ const { source, exampleId } = Astro.props;
 const labelId = `source-${exampleId}-${source.id}`;
 ---
 
-<figure class="source-file" aria-labelledby={labelId}>
-  <figcaption id={labelId}><span>{source.label}</span><span class="language">{source.language}</span></figcaption>
+<figure data-source-file={source.id} class="source-file" aria-labelledby={labelId}>
+  <figcaption id={labelId}><span>{source.path}{source.label !== source.path && <span class="source-label"> · {source.label}</span>}</span><span class="language">{source.language}</span></figcaption>
   <Code code={source.content} lang={source.language} theme="github-dark-default" tabindex="0" role="region" aria-label={`${source.label} source code`} />
 </figure>
 

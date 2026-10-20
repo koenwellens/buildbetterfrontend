@@ -1,0 +1,39 @@
+---
+import type { ResolvedExample } from '../../lib/content/examples.ts';
+interface Props { examples: ResolvedExample[]; perspective: 'code' | 'preview' }
+const { examples, perspective } = Astro.props;
+const label = perspective === 'code' ? 'Code' : 'Preview';
+---
+
+<div class="resource-selection" data-selection={perspective}>
+  {examples.length > 1 && <div class="example-select">
+    <label for={`bbf-example-${perspective}`}>{label} example</label>
+    <select id={`bbf-example-${perspective}`} data-example-select={perspective}>
+      {examples.map(example => <option value={example.id}>{example.title}</option>)}
+    </select>
+  </div>}
+  {examples.map(example => <div data-resource-context={example.id}>
+    <header class="resource-context">
+      <h2>{example.title}</h2>
+      {example.description && <p>{example.description}</p>}
+      {example.repositoryUrl && <a href={example.repositoryUrl}>Source repository for {example.title} <span aria-hidden="true">↗</span></a>}
+    </header>
+    {perspective === 'code' && example.sourceFiles.length > 1 && <div class="file-select">
+      <label for={`bbf-file-${example.id}`}>Source file</label>
+      <select id={`bbf-file-${example.id}`} data-file-select={example.id}>
+        {example.sourceFiles.map(source => <option value={source.id}>{source.path} · {source.language}</option>)}
+      </select>
+    </div>}
+    <div data-resource-host={example.id}></div>
+  </div>)}
+</div>
+
+<style>
+  .resource-selection, [data-resource-context] { display: grid; gap: var(--space-24); min-inline-size: 0; }
+  .resource-context { display: grid; gap: var(--space-12); }
+  .resource-context p { color: var(--color-text-secondary); }
+  .example-select, .file-select { display: grid; gap: var(--space-8); }
+  label { font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+  select { inline-size: 100%; border-radius: var(--space-4); }
+  h2 { overflow-wrap: anywhere; }
+</style>

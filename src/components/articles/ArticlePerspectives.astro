@@ -1,0 +1,54 @@
+---
+import type { ResolvedExample } from '../../lib/content/examples.ts';
+import { getPerspectives } from '../../lib/content/examples.ts';
+import ArticleExamples from './ArticleExamples.astro';
+import ResourceSelection from './ResourceSelection.astro';
+interface Props { examples: ResolvedExample[] }
+const { examples } = Astro.props;
+const perspectives = getPerspectives(examples);
+const code = examples.filter(example => example.sourceFiles.length > 0);
+const preview = examples.filter(example => example.preview);
+const labels = { article: 'Article', code: 'Code', preview: 'Preview' };
+const hrefs = { article: '#article', code: `#code-${code[0]?.id}`, preview: `#preview-${preview[0]?.id}` };
+---
+
+<div data-article-perspectives>
+  {perspectives.length > 1 && <nav class="perspective-nav container container--reading" aria-label="Article perspectives" data-perspective-nav>
+    {perspectives.map(perspective => <a id={`bbf-tab-${perspective}`} href={hrefs[perspective]} data-perspective={perspective}>{labels[perspective]}</a>)}
+  </nav>}
+  <p class="resource-message container container--reading" data-resource-message role="status" hidden></p>
+  <div id="bbf-panel-article" data-panel="article">
+    <div class="article-prose container container--reading"><slot /></div>
+    <ArticleExamples examples={examples} />
+  </div>
+  {code.length > 0 && <section id="bbf-panel-code" class="perspective-resources container container--example" data-panel="code" hidden>
+    <ResourceSelection examples={code} perspective="code" />
+  </section>}
+  {preview.length > 0 && <section id="bbf-panel-preview" class="perspective-resources container container--example" data-panel="preview" hidden>
+    <ResourceSelection examples={preview} perspective="preview" />
+  </section>}
+</div>
+
+<script>
+  import { enhancePerspectives } from '../../scripts/articles/perspectives.ts';
+  document.querySelectorAll<HTMLElement>('[data-article-perspectives]').forEach(enhancePerspectives);
+</script>
+
+<style>
+  .perspective-nav { display: flex; flex-wrap: wrap; gap: var(--space-24); margin-block: var(--space-32); }
+  .perspective-nav a { display: inline-flex; align-items: center; min-block-size: var(--control-min-size); padding-block: var(--space-8); border-block-end: 3px solid transparent; color: var(--color-text-secondary); font-size: var(--text-base); text-decoration: none; }
+  .perspective-nav a:hover { color: var(--color-text); }
+  .perspective-nav [aria-selected='true'] { border-block-end-color: var(--color-primary); color: var(--color-text); font-weight: var(--weight-bold); }
+  .perspective-resources { margin-block: var(--space-32) var(--space-64); }
+  .resource-message { margin-block: var(--space-24); color: var(--color-text-secondary); }
+  @media (forced-colors: active) { .perspective-nav [aria-selected='true'] { border-block-end-color: Highlight; } }
+</style>
+
+<style is:global>
+  [data-article-perspectives] [hidden] { display: none !important; }
+  [data-article-perspectives] [data-panel], [data-article-perspectives] [id] { scroll-margin-block-start: var(--space-24); }
+  @media print {
+    [data-article-perspectives] [data-panel][hidden], [data-article-perspectives] [data-source-file][hidden] { display: block !important; }
+    [data-perspective-nav], [data-selection] :is(label, select), [data-preview-retry], [data-preview] iframe { display: none !important; }
+  }
+</style>

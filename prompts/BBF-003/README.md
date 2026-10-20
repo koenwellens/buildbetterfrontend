@@ -86,21 +86,23 @@ full homepage.
 - [Decouple content validation](./01-05-decouple-content-validation.md)
 - [02 — Article rendering and working examples](./02-00-article-model.md)
 - [02a — Preview security remediation](./02-01-security-mediation.md)
+- [03 — Article perspectives](./03-00-article-perspectives.md)
 
 Further prompts will be added after reviewing the results
 of the preceding implementation step.
 
-Next planned step: perspective navigation and accessibility (BBF-003/03).
+Current step: perspective navigation and accessibility (BBF-003/03), ready for review.
+BBF-004 remains outside this task.
 
 ## Implementation
 
-**Status:** Step 1 content model/architecture accepted as stated in the step 2
-request. Step 2 article rendering implemented and locally verified.
-Step 2 and overall repository-owner acceptance remain pending.
+**Status:** Baseline through BBF-003/02a is accepted as stated in the current
+step 3 request. Step 3 is implemented and locally verified; full BBF-003 repository-owner
+acceptance remains pending.
 The directory-based architecture below supersedes the original step 1 pipeline.
 Earlier implementation and remediation records are preserved as history.
 Step 2 and preview-security remediation outcomes are recorded below.
-Perspective navigation has not started.
+Current perspective work is recorded separately below.
 
 ### Original step 1 implementation — historical
 
@@ -670,18 +672,131 @@ remote hosting were not tested. Static hosting must preserve the emitted MIME
 extensions and 404 behavior. No deployment, commit, or PR was made. Step 3 has
 not started; owner acceptance remains pending.
 
+### Step 3 — Article perspectives
+
+**Status:** Implemented and locally verified, 2026-10-20. The step 3 request
+accepts the content/rendering/preview baseline. Step 3 and full BBF-003 owner
+review remain pending. No BBF-004 implementation, commit, PR, or deployment.
+
+**Composition:** `ArticleLayout` now uses `ArticlePerspectives`, with a small
+`ResourceSelection` component. The existing `ArticleExamples`, `SourceFile`,
+and `ExamplePreview` supply one static body/source/frame set; data hooks let
+`src/scripts/articles/perspectives.ts` move original resources into the chosen
+panel and return them to their article positions. Source paths, display labels,
+languages, original highlighted text, example/file order, and real repository
+links remain available. No second source loader, content pipeline, client
+framework, global store, authored flags, or dependency was added.
+
+**Interaction:** `getPerspectives()` derives available controls; prose-only
+articles omit the strip. Baseline controls are ordinary links. Successful
+initialization applies associated tab/panel roles, selection, roving focus,
+Left/Right wrapping, Home/End, and manual Enter/Space activation. Tab activation
+keeps focus on its control. Native, explicitly labeled example/file selectors
+show eligible resources in editorial order. Code/Preview preserve the selected
+example if eligible, otherwise visibly select the first eligible example. File
+selection is remembered per example during the visit. Hidden panels/files expose
+no focus targets. Initialization or later interaction failure restores the
+complete static content and ordinary links.
+
+**Fragments/history:** existing heading IDs, `#article`, `#example-<id>`,
+`#code-<id>`, `#preview-<id>`, and `#source-<example-id>-<file-id>` are preserved.
+Actual DOM targets/resource membership resolve the view; no string-splitting ID
+parser or new public fragment convention was adopted. Explicit view/example/file
+changes push the existing fragment only when changed. Direct links and native
+Back/Forward reveal/focus the target without entering a preview. Invalid or
+removed targets retain Article with an explanation, including prose-only pages.
+There is no cross-visit persistence beyond an explicit resource/file fragment.
+
+**Preview lifecycle:** `preview-lifecycle.ts` manages the same existing iframe.
+Hidden previews lose their `src`, stopping the demo; reactivation restarts it
+near the viewport, retaining native lazy loading and reserved dimensions. Timers
+clear on hiding/reload/load/error/rollback, event handlers use an abort signal,
+and rollback disconnects observers. Local loading/delay/error feedback and a
+reload button retain the standalone link. A frame load cannot prove HTTP/runtime
+success through an opaque sandbox; feedback says so rather than claiming a
+successful demo. A real 404 case preserves reading and source access. The
+registry, static endpoint, parse5/CSP wrapper, permissions, supported companion
+types, and publication checks are byte-for-byte unchanged from the task start.
+
+**Presentation:** compact labels, a blue underline and stronger active weight,
+visible focus, and native selectors use current contrast-safe tokens. The light
+palette, font replacement, rail, outline, chapter numbering/progress, homepage,
+copy controls, and Playground remain outside this step. The requested reference
+path is absent; the original `docs/Build Better Frontend_ Into the Bin.png` was
+inspected. No reference image or historical prompt was rewritten.
+
+**Verification:**
+
+- [x] `npm run check:content` — Passed; expected empty-collection notices only.
+- [x] `npm run check` via `npm run build` — 36 files, zero errors/warnings/hints.
+- [x] `npm test` via `npm run build` — 21 passed, none failed/skipped. The new
+  native-build regression covers available perspectives/static fallback, unique
+  IDs, one resource/body set, editorial/file order, existing anchors, highlighting,
+  unchanged sandbox/CSP, and unpublished/draft exclusion. Prior regressions pass.
+- [x] `npm run build` — Passed after the final prose-only fragment correction;
+  static generation and canonical article routes retained.
+- [x] Real browser regressions — 14/14 perspective cases and 6/6 retained preview
+  security cases passed against disposable production builds. Coverage includes
+  all resource combinations, keyboard activation, selection/node identity,
+  direct fragments/history, hidden-frame lifecycle, invalid/prose-only targets,
+  script-disabled fallback, initialization/interaction rollback, and an actual
+  preview HTTP 404. Browser suites run when opened, separately from `npm test`;
+  the script-disabled case uses an iframe without script permission.
+- [x] Manual browser inspection — Article, Code, and Preview each checked at
+  390px, 768px, and 1440px. Page widths equal viewport widths in all nine cases;
+  exactly one enhanced panel is visible and focus never remains hidden. Long
+  example names/filenames wrap; source scrolls locally (348px viewport / 569px
+  content in the mobile stress case). The loaded CSS preview retained its title,
+  empty sandbox, and external styling. Real Arrow/Enter/Space/Tab interactions
+  retain manual activation and lead into the labeled selector, with a visible
+  2px focus outline. Top-level Back/Forward restore Code/Preview/file selection
+  and focus existing resource targets.
+- [x] Contrast/payload inspection — Computed active/inactive text contrast against
+  the existing canvas is 17.37:1 / 10.13:1; underline 5.66:1 and focus 10.31:1.
+  The single site enhancement is 6,951 bytes (2,470 gzip), with no client package
+  dependencies. Representative fluid-typography HTML is 25,716 bytes (4,781 gzip);
+  mixed stress HTML is 40,695 bytes (4,774 gzip). Shared styles total 3,791 gzip
+  bytes across two assets; two existing WOFF2 files total 63,624 bytes. These are
+  file/payload measurements, not network timings or Web Vitals results. Frame
+  dimensions remain reserved; no new animation or smooth scrolling is added.
+- [x] Production artifact review — Nine files: homepage, the expected article JS
+  asset, two CSS assets, two fonts, two licenses, and `.gitkeep`. The homepage
+  references no scripts. No article/demo fixture, preview route, draft marker,
+  unused preview resource, or browser test page appears in production output.
+- [x] Diff review — No changes to package/lockfile, schemas/resolvers, article or
+  preview routes, validation middleware, publication rules, global design tokens,
+  font infrastructure, CI, or historical prompts. Pre-existing user changes are
+  preserved. `git diff --check` passes; no new broken local documentation links.
+
+The initial manual selector check exposed labels that included option text;
+explicit `for`/`id` labels corrected that. Final review found missing unavailable-
+fragment feedback on prose-only pages; the browser regression now covers it.
+The font listener required permitted local execution. One approval attempt used
+stale task scope and was retried after reading the current request; a subsequent
+usage-limit interruption was resolved before the final checks completed.
+
+**Remaining limitations:** verification used the in-app browser, not a cross-
+engine or screen-reader audit. Full zoom/text-spacing/forced-color/reduced-motion
+emulation, print review, and Core Web Vitals measurements were not performed;
+the new controls add no motion and retain existing accessibility defaults.
+Unloading a preview resets its internal demo state. Opaque-frame runtime success
+cannot be verified by its load event. Copy UI and the editorial migration remain
+separate work. Five pre-existing broken reference/snapshot links in the edited
+specifications remain, including the missing canonical mock-up path; no new
+broken links were introduced. Owner has accepted.
+
 ### Human review
 
 - [x] Content model reviewed — 2026-10-16
 - [x] Content architecture reviewed — 2026-10-16
-- [ ] Article rendering reviewed — Pending
-- [ ] Article perspectives reviewed — Pending
-- [ ] Desktop appearance reviewed — Pending
-- [ ] Mobile appearance reviewed — Pending
-- [ ] Repository owner review — Pending
+- [x] Article rendering visual review — 2026-10-19
+- [x] Article perspectives reviewed — 2026-10-20
+- [x] Desktop appearance reviewed — 2026-10-20
+- [x] Mobile appearance reviewed — 2026-10-20
+- [x] Repository owner review — 2026-10-20
 
-Step 2 rendering and visual acceptance remain pending. Perspectives remain a
-separate later step.
+The baseline is accepted as stated in the step 3 request. Step 3, visual
+acceptance, and full-story repository-owner review are accepted by the owner.
 
 ## Lessons learned
 

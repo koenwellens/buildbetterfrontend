@@ -272,7 +272,7 @@ test('production article components render metadata, prose, ordered sources, and
   const root = await setup();
   try {
     await rm(join(root, 'src/pages/articles'), { recursive: true });
-    for (const directory of ['layouts', 'components', 'styles', 'assets', 'pages/articles', 'pages/previews']) {
+    for (const directory of ['layouts', 'components', 'styles', 'assets', 'scripts', 'pages/articles', 'pages/previews']) {
       await cp(join(project, `src/${directory}`), join(root, `src/${directory}`), { recursive: true });
     }
     await cp(join(project, 'astro.config.mjs'), join(root, 'astro.config.mjs'));
@@ -323,7 +323,7 @@ test('production article components render metadata, prose, ordered sources, and
     const proseOnly = await readFile(join(root, 'dist/articles/prose-only/index.html'), 'utf8');
     assert.match(proseOnly, /Complete prose in initial HTML/);
     assert.doesNotMatch(proseOnly, /examples-title|<iframe|class="source-file"|Updated|Article source repository/);
-    assert.doesNotMatch(html, /role="tab|<script/);
+    assert.doesNotMatch(html, /role="tab/);
     assert.match(html, /title="Development fixture: fluid heading typography" sandbox(?:="")? loading="lazy"/);
     const preview = await readFile(join(root, 'dist/previews/fluid-heading/source/index.html'), 'utf8');
     assert.match(preview, /href=&quot;styles.css&quot;/);

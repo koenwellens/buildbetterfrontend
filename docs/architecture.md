@@ -186,6 +186,40 @@ builds copy it into a disposable project using the documented draft workflow;
 normal production builds contain no fixture article or preview assets.
 Article-level perspective navigation remains BBF-003/03 work.
 
+## BBF-003/03 perspective enhancement decisions
+
+**Adopted implementation, owner review pending:** `ArticlePerspectives` composes
+the existing body and `ArticleExamples` with resource-derived navigation and
+small `ResourceSelection` contexts. `SourceFile` and `ExamplePreview` still
+render each resource once. A bundled Astro TypeScript module enhances that
+static DOM; it moves the original resource elements rather than fetching source,
+rendering a client copy, or changing native content resolution. No dependencies,
+client framework, global store, or new content metadata are introduced.
+
+Tabs initialize manually, after preflight/event setup, with rollback to the
+original sections/links on error. Example/file state remains local. Existing
+`article`, heading, `example-*`, `code-*`, `preview-*`, and `source-*-*` anchors
+supply shareable state/history; the actual target's resource membership selects
+the view. There is no new fragment parser or slugger. Explicit resource changes
+use the existing fragment with `pushState`; native hash navigation and
+Back/Forward restore resources and focus. See [Article experience](article-experience.md)
+for exact selection/fallback semantics.
+
+A separate small lifecycle module manages the existing iframe element only.
+Hidden frames are unloaded; nearby reactivated frames retain native lazy loading.
+Timeouts are cleared on hiding/reload/load/error/rollback, listeners use an abort
+signal, and observers disconnect on rollback. Frame content is never inspected
+or trusted for runtime success. Loading/error guidance always retains a real
+standalone link and source/reading access. The BBF-003/02a endpoint, controlled
+wrapper, CSP, sandbox permissions, parser, resource policy, and publication
+boundary remain unchanged. Demo state resets after unloading; this avoids hidden
+authored runtime activity instead of introducing cross-frame pause messages.
+
+Only article routes load the enhancement. Production payload and browser results
+are recorded in the [BBF-003 implementation record](../prompts/BBF-003/README.md).
+This is a functional perspective step within the current layout; the site-wide
+editorial shell/font/palette migration and heading enhancements remain deferred.
+
 ## Proposed architecture
 
 Build a static publication with server-generated article HTML and small, focused client interactions. Keep content, example source, and configuration in version control. A database, application server, authentication service, AI service, and custom CMS are unnecessary for the proposed v1 scope.
@@ -325,7 +359,7 @@ No requests go to an LLM or search backend. Keep status text, focus behavior, an
 
 ## Article rendering and browser enhancement
 
-Static reading HTML, article metadata, source sections, canonical/Open Graph output, and protected isolated previews are already recorded as implemented. Keep native MDX rendering and the existing resource resolvers. Perspective controls, copy actions, inline insertion, discovery, and editorial outline/progress remain pending; adding a stylesheet does not implement those interfaces.
+Static reading HTML, article metadata, source sections, canonical/Open Graph output, and protected isolated previews are already recorded as implemented. Keep native MDX rendering and the existing resource resolvers. Perspective controls are implemented under BBF-003/03 above; copy actions, inline insertion, discovery, and editorial outline/progress remain pending. Adding a stylesheet does not implement those interfaces.
 
 Each enhancement initializes independently and must fail back to useful HTML. Only apply tab semantics/hide inactive panels after successful perspective initialization. The fragment scheme in Article experience remains a proposal; preserve existing IDs, valid direct links, browser history, and the canonical article URL. Framework-specific teaching examples do not require Angular, React, or another site-wide runtime.
 
